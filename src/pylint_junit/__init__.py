@@ -39,7 +39,11 @@ class JUnitReporter(BaseReporter):
 
     def handle_message(self, msg):
         """Manage message of different type and in the context of path."""
-        source_line = getline(msg.path, msg.line).strip().decode('utf-8')
+        try:
+            source_line = getline(msg.path, msg.line).strip().decode('utf-8')
+        except AttributeError:
+            source_line = getline(msg.path, msg.line).strip()
+            
         stdout_line = u"{0}:{1}:{2}:{3}".format(msg.path, msg.line, msg.column, source_line)
         stderr_line = u"{0}:{1}\n{2}".format(msg.msg_id, msg.msg, stdout_line)
         testcase_name = u"{0}:{1}:{2}".format(msg.module, msg.line, msg.column)
@@ -49,7 +53,7 @@ class JUnitReporter(BaseReporter):
 
     def display_messages(self, layout):
         xml_str = TestSuite.to_xml_string(self.items.values())
-        print(xml_str.encode('utf-8'), file=self.out)
+        print(xml_str, file=self.out)
 
     def display_reports(self, layout):
         """Don't do nothing in this reporter."""
